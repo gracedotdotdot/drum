@@ -1,9 +1,16 @@
+#include "mbed.h"
+
+#include <cmath>
+
+#include "DA7212.h"
+
 #include "accelerometer_handler.h"
 
 #include "config.h"
 
 #include "magic_wand_model_data.h"
 
+// library for recognizing gesture
 
 #include "tensorflow/lite/c/common.h"
 
@@ -18,9 +25,116 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 
 #include "tensorflow/lite/version.h"
+#include "uLCD_4DGL.h"
 
 
-// Return the result of the last prediction
+DA7212 audio;
+
+int16_t waveform[kAudioTxBufferSize];
+
+EventQueue queue(32 * EVENTS_EVENT_SIZE);
+
+uLCD_4DGL uLCD(D1, D0, D2);
+
+Thread t_DNN(osPriorityNormal, 120*1024); /*stacksize 120k*/
+
+Thread t_show;
+
+// Set up logging.
+
+  static tflite::MicroErrorReporter micro_error_reporter;
+
+  tflite::ErrorReporter* error_reporter = &micro_error_reporter;
+
+char songList[3][30]={"Something just like this","there's no if", "heal the world"};
+char modeList[3][10]={"Forward","Backward","Change"};
+DigitalIn selectSwitch(SW2);
+DigitalIn modeSwitch(SW3);
+int cursor=0;
+
+
+int songFreq[42] = {
+
+  261, 261, 392, 392, 440, 440, 392,
+
+  349, 349, 330, 330, 294, 294, 261,
+
+  392, 392, 349, 349, 330, 330, 294,
+
+  392, 392, 349, 349, 330, 330, 294,
+
+  261, 261, 392, 392, 440, 440, 392,
+
+  349, 349, 330, 330, 294, 294, 261};
+
+
+int noteLength[42] = {
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2};
+
+void showSong(int num){
+  uLCD.locate(1,1);
+  for(int i=0; i<3;i++){
+    if(i==num)
+        uLCD.color(BLUE);
+      else
+        uLCD.color(WHITE);
+    for(int j=0; j<30 && songList[i][j]!='\0'; j++){
+      uLCD.printf("%c", songList[i][j]);
+    }
+    uLCD.printf("\n");
+  }
+}
+void showMode(int num){
+  uLCD.locate(1,1);
+  for(int i=0; i<3;i++){
+    if(i==num)
+        uLCD.color(BLUE);
+      else
+        uLCD.color(WHITE);
+    for(int j=0; j<30 && modeList[i][j]!='\0'; j++){
+      uLCD.printf("%c", modeList[i][j]);
+    }
+    uLCD.printf("\n");
+  }
+}
+
+
+void playNote(int freq)
+
+{
+
+  for (int i = 0; i < kAudioTxBufferSize; i++)
+
+  {
+
+    waveform[i] = (int16_t) (sin((double)i * 2. * M_PI/(double) (kAudioSampleFrequency / freq)) * ((1<<16) - 1));
+
+  }
+
+  // the loop below will play the note for the duration of 1s
+
+  for(int j = 0; j < kAudioSampleFrequency / kAudioTxBufferSize; ++j)
+
+  {
+
+    audio.spk.play(waveform, kAudioTxBufferSize);
+
+  }
+
+}
+
+//Return the result of the last prediction
 
 int PredictGesture(float* output) {
 
@@ -92,12 +206,8 @@ int PredictGesture(float* output) {
   return this_predict;
 
 }
-
-
-int main(int argc, char* argv[]) {
-
-
-  // Create an area of memory to use for input, output, and intermediate arrays.
+void DNN(void){
+   // Create an area of memory to use for input, output, and intermediate arrays.
 
   // The size of this will depend on the model you're using, and may need to be
 
@@ -118,15 +228,6 @@ int main(int argc, char* argv[]) {
   // The gesture index of the prediction
 
   int gesture_index;
-
-
-  // Set up logging.
-
-  static tflite::MicroErrorReporter micro_error_reporter;
-
-  tflite::ErrorReporter* error_reporter = &micro_error_reporter;
-
-
   // Map the model into a usable data structure. This doesn't involve any
 
   // copying or parsing, it's a very lightweight operation.
@@ -143,7 +244,7 @@ int main(int argc, char* argv[]) {
 
         model->version(), TFLITE_SCHEMA_VERSION);
 
-    return -1;
+    //return -1;
 
   }
 
@@ -213,7 +314,7 @@ int main(int argc, char* argv[]) {
 
     error_reporter->Report("Bad input tensor parameters in model");
 
-    return -1;
+    //return -1;
 
   }
 
@@ -227,7 +328,7 @@ int main(int argc, char* argv[]) {
 
     error_reporter->Report("Set up failed\n");
 
-    return -1;
+    //return -1;
 
   }
 
@@ -235,7 +336,14 @@ int main(int argc, char* argv[]) {
   error_reporter->Report("Set up successful...\n");
 
 
+
   while (true) {
+    // if(modeSwitch==0){
+    //   //showMode(0);
+    //   //error_reporter->Report("Show mode...\n");
+    //   wait(1);
+
+    // }
 
 
     // Attempt to read new data from the accelerometer
@@ -286,9 +394,49 @@ int main(int argc, char* argv[]) {
     if (gesture_index < label_num) {
 
       error_reporter->Report(config.output_message[gesture_index]);
+      if(cursor>2) cursor=0;
+      else cursor++;
+
+      error_reporter->Report("cursor=%d\n",cursor);
 
     }
 
   }
+}
+
+int main(int argc, char* argv[]) {
+  showSong(0);
+
+  //thread.start(callback(&queue, &EventQueue::dispatch_forever));
+
+
+  // for(int i = 0; i < 42; i++)
+
+  // {
+
+  //   int length = noteLength[i];
+
+  //   while(length--)
+
+  //   {
+
+  //     queue.call(playNote, songFreq[i]);
+  //     queue.dispatch();
+
+  //     if(length <= 1) wait(1.0);
+
+  //   }
+
+  // }
+  t_DNN.start(DNN);
+  while(1){
+    if(modeSwitch==0)
+      showMode(cursor);
+
+  }
+  
+
+  
 
 }
+
