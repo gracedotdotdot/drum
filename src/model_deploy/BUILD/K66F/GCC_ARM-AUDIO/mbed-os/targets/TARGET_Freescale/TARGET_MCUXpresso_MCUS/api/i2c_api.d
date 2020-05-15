@@ -35,7 +35,6 @@ BUILD/K66F/GCC_ARM-AUDIO/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS
  /home/ee2405/ee2405/mbed-os/hal/pinmap.h \
  /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K66F/drivers/fsl_i2c.h \
  /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K66F/drivers/fsl_port.h \
- /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K66F/drivers/fsl_gpio.h \
  /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K66F/peripheral_clock_defines.h \
  /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K66F/drivers/fsl_clock.h \
  /home/ee2405/ee2405/mbed-os/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/api/PeripheralPins.h

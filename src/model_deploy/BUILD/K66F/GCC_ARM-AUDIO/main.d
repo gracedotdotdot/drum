@@ -274,4 +274,5 @@ BUILD/K66F/GCC_ARM-AUDIO/main.o: main.cpp \
  tensorflowlite_mbed/tensorflow/lite/type_to_tflitetype.h \
  tensorflowlite_mbed/tensorflow/lite/micro/micro_mutable_op_resolver.h \
  tensorflowlite_mbed/tensorflow/lite/version.h \
- tensorflowlite_mbed/tensorflow/core/public/version.h
+ tensorflowlite_mbed/tensorflow/core/public/version.h \
+ 4DGL-uLCD-SE/uLCD_4DGL.h
