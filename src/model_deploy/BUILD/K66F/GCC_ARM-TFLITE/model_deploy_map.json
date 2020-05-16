@@ -5,53 +5,20 @@
             ".text": 44068,
             ".data": 473,
             ".bss": 6786,
-            ".text-delta": 44068,
-            ".data-delta": 473,
-            ".bss-delta": 6786
-        }
-    },
-    {
-        "module": "4DGL-uLCD-SE/uLCD_4DGL_Text.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -532,
+            ".text-delta": -1078,
             ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "4DGL-uLCD-SE/uLCD_4DGL_main.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -786,
-            ".data-delta": 0,
-            ".bss-delta": 0
+            ".bss-delta": -644
         }
     },
     {
         "module": "BUILD/K66F",
         "size": {
-            ".text": 43914,
+            ".text": 44154,
             ".data": 445,
             ".bss": 4119,
-            ".text-delta": 43914,
-            ".data-delta": 445,
-            ".bss-delta": 4119
-        }
-    },
-    {
-        "module": "DA7212/DA7212.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -936,
-            ".data-delta": -100,
-            ".bss-delta": -535
+            ".text-delta": -4,
+            ".data-delta": 0,
+            ".bss-delta": -48
         }
     },
     {
@@ -60,8 +27,8 @@
             ".text": 280,
             ".data": 13,
             ".bss": 42,
-            ".text-delta": -7,
-            ".data-delta": -1,
+            ".text-delta": -1,
+            ".data-delta": 0,
             ".bss-delta": -4
         }
     },
@@ -71,7 +38,7 @@
             ".text": 34955,
             ".data": 2472,
             ".bss": 89,
-            ".text-delta": 3634,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -93,7 +60,7 @@
             ".text": 2417,
             ".data": 1,
             ".bss": 0,
-            ".text-delta": -4972,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -132,132 +99,11 @@
         }
     },
     {
-        "module": "accelerometer_handler.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -584,
-            ".data-delta": -9,
-            ".bss-delta": -2438
-        }
-    },
-    {
-        "module": "magic_wand_model_data.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -12248,
-            ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "main.o",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -1847,
-            ".data-delta": -103,
-            ".bss-delta": -2954
-        }
-    },
-    {
-        "module": "mbed-os/components",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -16,
-            ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "mbed-os/drivers",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -1686,
-            ".data-delta": 0,
-            ".bss-delta": -44
-        }
-    },
-    {
-        "module": "mbed-os/events",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -1285,
-            ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "mbed-os/hal",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -1756,
-            ".data-delta": -8,
-            ".bss-delta": -131
-        }
-    },
-    {
-        "module": "mbed-os/platform",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -6636,
-            ".data-delta": -261,
-            ".bss-delta": -309
-        }
-    },
-    {
-        "module": "mbed-os/rtos",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -9869,
-            ".data-delta": -168,
-            ".bss-delta": -5980
-        }
-    },
-    {
-        "module": "mbed-os/targets",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -13482,
-            ".data-delta": -36,
-            ".bss-delta": -322
-        }
-    },
-    {
-        "module": "tensorflowlite_mbed/tensorflow",
-        "size": {
-            ".text": 0,
-            ".data": 0,
-            ".bss": 0,
-            ".text-delta": -27504,
-            ".data-delta": -192,
-            ".bss-delta": -108
-        }
-    },
-    {
         "summary": {
             "static_ram": 14488,
-            "static_ram_delta": -1880,
-            "total_flash": 132746,
-            "total_flash_delta": 7510
+            "static_ram_delta": -696,
+            "total_flash": 132986,
+            "total_flash_delta": -1083
         }
     }
 ]

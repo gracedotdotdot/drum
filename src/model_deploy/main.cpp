@@ -46,7 +46,7 @@ Thread t_show;
 
   tflite::ErrorReporter* error_reporter = &micro_error_reporter;
 
-char songList[3][30]={"Something just like this","there's no if", "heal the world"};
+char songList[3][30]={"Some thing just like this","there's no if", "heal the world"};
 char modeList[3][10]={"Forward","Backward","Change"};
 DigitalIn selectSwitch(SW2);
 DigitalIn modeSwitch(SW3);
@@ -83,46 +83,94 @@ int noteLength[42] = {
 
   1, 1, 1, 1, 1, 1, 2};
 
-void showSong(int num){
-  uLCD.locate(1,1);
-  for(int i=0; i<3;i++){
-    if(i==num)
+
+void showSong(){   
+  //int num=0;
+  while(selectSwitch==1 && modeSwitch==1){ //if mode switch is not pressed, show song list and current song playing
+    //num=cursor; // if num=-1 ->detect cursor, else num equals to forward or backward
+    uLCD.locate(1,1);
+    for(int i=0; i<3;i++){
+      if(i==cursor)
         uLCD.color(BLUE);
+      else if(i==song_cursor){
+        error_reporter->Report("show Song: song_cursor=%d=i=%d\n",song_cursor, i);
+        uLCD.color(RED);
+      }
       else
         uLCD.color(WHITE);
-    for(int j=0; j<30 && songList[i][j]!='\0'; j++){
-      uLCD.printf("%c", songList[i][j]);
+      for(int j=0; j<30 && songList[i][j]!='\0'; j++){
+        uLCD.printf("%c", songList[i][j]);
+      }
+      uLCD.printf("\n");
     }
-    uLCD.printf("\n");
   }
-}
-void showMode(int num){
-  uLCD.locate(1,1);
-  //show info on ulcd
-  for(int i=0; i<3;i++){
-    if(i==num)
-        uLCD.color(BLUE);
-      else
-        uLCD.color(WHITE);
-    for(int j=0; j<30 && modeList[i][j]!='\0'; j++){
-      uLCD.printf("%c", modeList[i][j]);
-    }
-    uLCD.printf("\n");
-  }
-  //detect which selection
   if(selectSwitch==0){
-    switch(num){
-      case 0: //forward
-        showSong(++song_cursor);
-      case 1: //backward
-        showSong(--song_cursor);
-      case 2:
-        showSong(song_cursor);
-    }
+    // uLCD.locate(1,1);
+    // for(int i=0; i<3;i++){
+    //   if(i==cursor)
+    //     uLCD.color(BLUE);
+    //   else if(i==song_cursor){
+    //     error_reporter->Report("show Song: song_cursor=%d=i=%d\n",song_cursor, i);
+    //     uLCD.color(RED);
+    //   }
+    //   else
+    //     uLCD.color(WHITE);
+    //   for(int j=0; j<30 && songList[i][j]!='\0'; j++){
+    //     uLCD.printf("%c", songList[i][j]);
+    //   }
+    //   uLCD.printf("\n");
+    // }
+    //play music
   }
 
 }
-
+void showMode(){
+  while(selectSwitch==1){
+    uLCD.locate(1,1);
+    //show info on ulcd
+    for(int i=0; i<3;i++){
+      if(i==cursor)
+        uLCD.color(BLUE);
+      else
+        uLCD.color(WHITE);
+      for(int j=0; j<30 && modeList[i][j]!='\0'; j++){
+        uLCD.printf("%c", modeList[i][j]);
+      }
+      uLCD.printf("\n");
+    }
+  }
+  
+  //detect which selected mode
+  switch(cursor){
+    
+    case 0: //forward
+      //error_reporter->Report("Show Mode : song_cursor=%d\n",song_cursor);
+      if(song_cursor==2) song_cursor=0;
+      else song_cursor+=1;
+      //error_reporter->Report("change to =%d\n",song_cursor);
+      showSong();
+      break;
+    case 1: //backward
+      if(song_cursor==0) song_cursor=2;
+      else song_cursor-=1;
+      showSong();
+      break;
+    case 2: // change song
+      showSong(); 
+      break; 
+  }
+}
+void showInfo(void){
+  while(1){
+    if(modeSwitch==0){
+      uLCD.cls();
+      showMode();
+    }else{
+      showSong();
+    }
+    //wait(0.5);
+  }
+}
 
 void playNote(int freq)
 
@@ -264,28 +312,15 @@ void DNN(void){
     //return -1;
 
   }
-
-
   int input_length = model_input->bytes / sizeof(float);
-
-
   TfLiteStatus setup_status = SetupAccelerometer(error_reporter);
-
   if (setup_status != kTfLiteOk) {
-
     error_reporter->Report("Set up failed\n");
-
     //return -1;
-
   }
-
-
   error_reporter->Report("Set up successful...\n");
 
-
-
   while (true) {
-
     // Attempt to read new data from the accelerometer
     got_data = ReadAccelerometer(error_reporter, model_input->data.f,
                                  input_length, should_clear_buffer);
@@ -295,14 +330,12 @@ void DNN(void){
       should_clear_buffer = false;
       continue;
     }
-
     // Run inference, and report any error
     TfLiteStatus invoke_status = interpreter->Invoke();
     if (invoke_status != kTfLiteOk) {
       error_reporter->Report("Invoke failed on index: %d\n", begin_index);
       continue;
     }
-
     // Analyze the results to obtain a prediction
     gesture_index = PredictGesture(interpreter->output(0)->data.f);
     // Clear the buffer next time we read data
@@ -310,7 +343,7 @@ void DNN(void){
     // Produce an output
     if (gesture_index < label_num) {
       error_reporter->Report(config.output_message[gesture_index]);
-      if(cursor>2) cursor=0;
+      if(cursor>1) cursor=0;
       else cursor++;
       error_reporter->Report("cursor=%d\n",cursor);
     }
@@ -319,13 +352,9 @@ void DNN(void){
 }
 
 int main(int argc, char* argv[]) {
-  showSong(0);
 
-  //thread.start(callback(&queue, &EventQueue::dispatch_forever));
-
-
+  // thread.start(callback(&queue, &EventQueue::dispatch_forever));
   // for(int i = 0; i < 42; i++)
-
   // {
 
   //   int length = noteLength[i];
@@ -335,18 +364,15 @@ int main(int argc, char* argv[]) {
   //   {
 
   //     queue.call(playNote, songFreq[i]);
-  //     queue.dispatch();
-
   //     if(length <= 1) wait(1.0);
 
   //   }
 
   // }
+  error_reporter->Report("start dnn\n");
   t_DNN.start(DNN);
-  while(1){
-    if(modeSwitch==0)
-      showMode(cursor);
-  }
+  error_reporter->Report("start show mode\n");
+  t_show.start(showInfo);
   
 
   
