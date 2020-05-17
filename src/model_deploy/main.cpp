@@ -27,6 +27,9 @@
 #include "tensorflow/lite/version.h"
 #include "uLCD_4DGL.h"
 
+// #define bufferLength (32)
+
+// #define signalLength (4096)
 
 DA7212 audio;
 
@@ -40,6 +43,10 @@ Thread t_DNN(osPriorityNormal, 120*1024); /*stacksize 120k*/
 
 Thread t_show;
 
+Thread t_music;
+
+Serial pc(USBTX, USBRX);
+
 // Set up logging.
 
   static tflite::MicroErrorReporter micro_error_reporter;
@@ -48,40 +55,35 @@ Thread t_show;
 
 char songList[3][30]={"Some thing just like this","there's no if", "heal the world"};
 char modeList[3][10]={"Forward","Backward","Change"};
+
 DigitalIn selectSwitch(SW2);
 DigitalIn modeSwitch(SW3);
 int cursor=0;
 int song_cursor = 0;
 
 
-int songFreq[42] = {
+float songFreq1[48];
+float songFreq2[42];
+float songFreq3[26];
 
-  261, 261, 392, 392, 440, 440, 392,
-
-  349, 349, 330, 330, 294, 294, 261,
-
-  392, 392, 349, 349, 330, 330, 294,
-
-  392, 392, 349, 349, 330, 330, 294,
-
-  261, 261, 392, 392, 440, 440, 392,
-
-  349, 349, 330, 330, 294, 294, 261};
+float noteLength1[48]={1};
+float noteLength2[42]={1};
+float noteLength3[26]={1};
 
 
-int noteLength[42] = {
+void playNote(int freq)
 
-  1, 1, 1, 1, 1, 1, 2,
-
-  1, 1, 1, 1, 1, 1, 2,
-
-  1, 1, 1, 1, 1, 1, 2,
-
-  1, 1, 1, 1, 1, 1, 2,
-
-  1, 1, 1, 1, 1, 1, 2,
-
-  1, 1, 1, 1, 1, 1, 2};
+{
+  for (int i = 0; i < kAudioTxBufferSize; i++)
+  {
+    waveform[i] = (int16_t) (sin((double)i * 2. * M_PI/(double) (kAudioSampleFrequency / freq)) * ((1<<16) - 1));
+  }
+  // the loop below will play the note for the duration of 1s
+  for(int j = 0; j < kAudioSampleFrequency / kAudioTxBufferSize; ++j)
+  {
+    audio.spk.play(waveform, kAudioTxBufferSize);
+  }
+}
 
 
 void showSong(){   
@@ -105,22 +107,9 @@ void showSong(){
     }
   }
   if(selectSwitch==0){
-    // uLCD.locate(1,1);
-    // for(int i=0; i<3;i++){
-    //   if(i==cursor)
-    //     uLCD.color(BLUE);
-    //   else if(i==song_cursor){
-    //     error_reporter->Report("show Song: song_cursor=%d=i=%d\n",song_cursor, i);
-    //     uLCD.color(RED);
-    //   }
-    //   else
-    //     uLCD.color(WHITE);
-    //   for(int j=0; j<30 && songList[i][j]!='\0'; j++){
-    //     uLCD.printf("%c", songList[i][j]);
-    //   }
-    //   uLCD.printf("\n");
-    // }
     //play music
+    error_reporter->Report("show Song: play music\n");
+
   }
 
 }
@@ -172,19 +161,6 @@ void showInfo(void){
   }
 }
 
-void playNote(int freq)
-
-{
-  for (int i = 0; i < kAudioTxBufferSize; i++)
-  {
-    waveform[i] = (int16_t) (sin((double)i * 2. * M_PI/(double) (kAudioSampleFrequency / freq)) * ((1<<16) - 1));
-  }
-  // the loop below will play the note for the duration of 1s
-  for(int j = 0; j < kAudioSampleFrequency / kAudioTxBufferSize; ++j)
-  {
-    audio.spk.play(waveform, kAudioTxBufferSize);
-  }
-}
 
 //Return the result of the last prediction
 int PredictGesture(float* output) {
@@ -255,60 +231,32 @@ void DNN(void){
   // needed by this graph.
 
   static tflite::MicroOpResolver<6> micro_op_resolver;
-
   micro_op_resolver.AddBuiltin(
-
       tflite::BuiltinOperator_DEPTHWISE_CONV_2D,
-
       tflite::ops::micro::Register_DEPTHWISE_CONV_2D());
-
   micro_op_resolver.AddBuiltin(tflite::BuiltinOperator_MAX_POOL_2D,
-
                                tflite::ops::micro::Register_MAX_POOL_2D());
-
   micro_op_resolver.AddBuiltin(tflite::BuiltinOperator_CONV_2D,
-
                                tflite::ops::micro::Register_CONV_2D());
-
   micro_op_resolver.AddBuiltin(tflite::BuiltinOperator_FULLY_CONNECTED,
-
                                tflite::ops::micro::Register_FULLY_CONNECTED());
-
   micro_op_resolver.AddBuiltin(tflite::BuiltinOperator_SOFTMAX,
-
                                tflite::ops::micro::Register_SOFTMAX());
   micro_op_resolver.AddBuiltin(tflite::BuiltinOperator_RESHAPE,
                              tflite::ops::micro::Register_RESHAPE(), 1);   
-
-
   // Build an interpreter to run the model with
-
   static tflite::MicroInterpreter static_interpreter(
-
       model, micro_op_resolver, tensor_arena, kTensorArenaSize, error_reporter);
-
   tflite::MicroInterpreter* interpreter = &static_interpreter;
-
-
   // Allocate memory from the tensor_arena for the model's tensors
-
   interpreter->AllocateTensors();
-
-
   // Obtain pointer to the model's input tensor
-
   TfLiteTensor* model_input = interpreter->input(0);
-
   if ((model_input->dims->size != 4) || (model_input->dims->data[0] != 1) ||
-
       (model_input->dims->data[1] != config.seq_length) ||
-
       (model_input->dims->data[2] != kChannelNumber) ||
-
       (model_input->type != kTfLiteFloat32)) {
-
     error_reporter->Report("Bad input tensor parameters in model");
-
     //return -1;
 
   }
@@ -350,32 +298,86 @@ void DNN(void){
 
   }
 }
-
+// void loadSignal(void){
+//   while(pc.readable()){
+//     for(int i=0; i<48; i++){
+//       songFreq1[i] = (float)atof(pc.getc());
+//     }
+//     // for(int i=0; i<42; i++)
+//     //   songFreq2[i] = (float)atof(pc.getc());
+//     // for(int i=0; i<26; i++)
+//     //   songFreq3[i] = (float)atof(pc.getc());
+//   }
+//   pc.printf("end reading\n");
+// }
+//void loadSignalHandler(void) {queue.call(loadSignal);}
 int main(int argc, char* argv[]) {
-
-  // thread.start(callback(&queue, &EventQueue::dispatch_forever));
-  // for(int i = 0; i < 42; i++)
-  // {
-
-  //   int length = noteLength[i];
-
-  //   while(length--)
-
-  //   {
-
-  //     queue.call(playNote, songFreq[i]);
-  //     if(length <= 1) wait(1.0);
-
-  //   }
-
-  // }
-  error_reporter->Report("start dnn\n");
+  //songFreq[i] = pc.getc();
+  //loadSwitch.rise(queue.event(loadSignalHandler));
+  // while(selectSwitch==1) {}
+  // loadSignal();
+  //char songFreq[48];
+  //pc.baud(115200);
+  while(pc.readable()){
+    for(int i=0; i<48; i++){
+      songFreq1[i] = (float)atof(pc.getc());
+      
+    }
+  }
+  for(int i=0; i<48; i++){
+    pc.printf("signalFreq1[%d] =%f",i,songFreq1[i]) ;
+    //pc.printf("signalFreq1[%d] =%c",i,songFreq[i]) ;
+    wait(0.5);
+  }
+  wait(60);
+  
+  pc.printf("start dnn\n");
   t_DNN.start(DNN);
-  error_reporter->Report("start show mode\n");
+  pc.printf("start show mode\n");
   t_show.start(showInfo);
+  pc.printf("start music\n");
+
+  // t_music.start(callback(&queue, &EventQueue::dispatch_forever));
   
 
-  
+  // pc.printf("start t_music\n");
+  // while(1){
+  //   float *songFreq, *noteLength;
+  //   pc.printf("song_cursor=%d\n",song_cursor);
+  //   // switch(song_cursor){
+  //   //   case 0: 
+  //   //     //pc.printf("get song1==============================\r\n");
+  //   //     songFreq = songFreq1; 
+  //   //     noteLength = noteLength1;
+  //   //     break;
+  //   //   case 1: 
+  //   //     songFreq = songFreq2; 
+  //   //     noteLength = noteLength2;
+  //   //     break;
+  //   //   case 2: 
+  //   //     songFreq = songFreq3; 
+  //   //     noteLength = noteLength3;
+  //   //     break;
+  //   // }
+    
+  //   for(int i = 0; i < 42  && modeSwitch==1 ; i++)
+  //   {
+  //     pc.printf("start song for loop %d\r\n",i);
+  //     if(modeSwitch==1){
+  //       int length = noteLength1[i];
+  //       while(length--)
+  //       {
+  //         queue.call(playNote, songFreq1[i]);
+  //         if(length <= 1) wait(0.3);
+  //       }
+  //     }else{
+  //       queue.cancel(0);
+  //     }
+  //   }
+  //   pc.printf("end \r\n");
+
+  // queue.cancel(0);
+  //}
 
 }
 

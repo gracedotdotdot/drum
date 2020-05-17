@@ -9,38 +9,111 @@ waitTime = 0.1
 
 
 # generate the waveform table
+songFreq1=np.array([ #48 note
 
-signalLength = 1024
+  294,294 ,294,294,294,294,196 , 
+  294,294,294,330,262,294 ,
+  196,294,294,294,294,196 ,
+  294,294,294,370,294,294 ,
+  370,370,370,370,392 ,196,
+  370,330,330,370,370  ,370,
+  294,294,370,370,330,330,
+  330,330,330,330,294,294  
+  ])
 
-t = np.linspace(0, 2*np.pi, signalLength)
 
-signalTable = (np.sin(t) + 1.0) / 2.0
+noteLength1 = np.array([
+
+  0.5, 1.5, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 2, 1,
+
+  1, 1, 1, 1, 3, 1,
+
+  1, 1, 1, 1, 1, 1,
+  
+  1, 1, 1, 1, 1, 2  ])
+
+songFreq2=np.array([  #42 note
+
+  261, 261, 392, 392, 440, 440, 392,
+
+  349, 349, 330, 330, 294, 294, 261,
+
+  392, 392, 349, 349, 330, 330, 294,
+
+  392, 392, 349, 349, 330, 330, 294,
+
+  261, 261, 392, 392, 440, 440, 392,
+
+  349, 349, 330, 330, 294, 294, 261])
+
+
+noteLength2 = np.array([
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2,
+
+  1, 1, 1, 1, 1, 1, 2])
+
+songFreq3=np.array([  #26 note
+  294,330,392 ,294,392,440 , 
+  392,440,494 ,523,587 ,494,
+  494,440,294,330,392  ,294,
+  294,392,440 ,523,494 ,440,
+  659 ,587])
+
+noteLength3 = np.array([
+
+  1, 1, 2, 1, 1, 2, 1,
+
+  1, 2, 1, 2, 1, 1, 1,
+
+  1, 1, 3, 1, 1, 1, 2,
+
+  1, 2, 1, 2, 1])
 
 
 # output formatter
 
 formatter = lambda x: "%.3f" % x
 
-
+songList=np.array([songFreq2])
+#, songFreq2, songFreq3])
+lengthList=np.array([noteLength1,noteLength2,noteLength3])
 # send the waveform table to K66F
 
 serdev = '/dev/ttyACM0'
 
-s = serial.Serial(serdev)
+s = serial.Serial(serdev, baudrate=115200)
 
 print("Sending signal ...")
 
-print("It may take about %d seconds ..." % (int(signalLength * waitTime)))
+#print("It may take about %d seconds ..." % (int(signalLength * waitTime)))
 
-# index = s.read()
+for song in songList:
+  for data in song:
+    s.write(bytes(formatter(data), 'UTF-8'))
+    print(bytes(formatter(data), 'UTF-8'))
+    time.sleep(waitTime)
 
-# print(index)
-
-for data in signalTable:
-
-  s.write(bytes(formatter(data), 'UTF-8'))
-
-  time.sleep(waitTime)
+# for length in lengthList:
+#   for data in length:
+#     s.write(bytes(formatter(data), 'UTF-8'))
+#         time.sleep(waitTime)
 
 s.close()
 
