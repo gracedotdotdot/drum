@@ -62,13 +62,10 @@ int cursor=0;
 int song_cursor = 0;
 
 
-float songFreq1[48];
-float songFreq2[42];
-float songFreq3[26];
+int songFreq[48];
 
-float noteLength1[48]={1};
-float noteLength2[42]={1};
-float noteLength3[26]={1};
+int noteLength[48];
+
 
 
 void playNote(int freq)
@@ -298,86 +295,110 @@ void DNN(void){
 
   }
 }
-// void loadSignal(void){
-//   while(pc.readable()){
-//     for(int i=0; i<48; i++){
-//       songFreq1[i] = (float)atof(pc.getc());
-//     }
-//     // for(int i=0; i<42; i++)
-//     //   songFreq2[i] = (float)atof(pc.getc());
-//     // for(int i=0; i<26; i++)
-//     //   songFreq3[i] = (float)atof(pc.getc());
-//   }
-//   pc.printf("end reading\n");
-// }
-//void loadSignalHandler(void) {queue.call(loadSignal);}
-int main(int argc, char* argv[]) {
-  //songFreq[i] = pc.getc();
-  //loadSwitch.rise(queue.event(loadSignalHandler));
-  // while(selectSwitch==1) {}
-  // loadSignal();
-  //char songFreq[48];
-  //pc.baud(115200);
-  while(pc.readable()){
-    for(int i=0; i<48; i++){
-      songFreq1[i] = (float)atof(pc.getc());
-      
+void loadSignal(void){
+
+  int i=0;
+  int bufferLength=32;
+  int serialCount=0;
+  char serialInBuffer[bufferLength];
+  //int songFreq[48];
+  // while(pc.getc()=='\0'){
+  //   uLCD.printf("pc null signal");
+  // }
+  uLCD.printf("start loading");
+  while(i<96){
+    if(pc.readable()){
+      serialInBuffer[serialCount] = pc.getc();
+      //uLCD.printf("in while");
+      serialCount++;
+
+      if(serialCount == 3)
+      {
+        if(i<48) {
+          songFreq[i]=(int)atoi(serialInBuffer);
+          pc.printf("songfreq[%d]=%d\r\n",i,songFreq[i]);
+        }
+        else {
+          noteLength[i-48] = (int)atoi(serialInBuffer);
+          pc.printf("notelength[%d]=%d\r\n",i-48,noteLength[i-48]);
+        }
+        serialCount=0;
+        
+        i++;
+      }
     }
+    //else uLCD.printf("pc not readable\n"); 
   }
-  for(int i=0; i<48; i++){
-    pc.printf("signalFreq1[%d] =%f",i,songFreq1[i]) ;
-    //pc.printf("signalFreq1[%d] =%c",i,songFreq[i]) ;
+  pc.printf("end while\n"); 
+}
+
+
+int main(int argc, char* argv[]) {
+
+  //loadSwitch.rise(queue.event(loadSignalHandler));
+  while(selectSwitch==1) {}
+  loadSignal();  
+  
+      // for(int i=0; i<48; i++){
+      //   songFreq1[i] = (float)atof(pc.getc());
+      //   num++;
+      // }  
+  
+  for(int a=0; a<48; a++){
+    //uLCD.printf("songFreq1[%d] =%f",a,songFreq1[a]) ;
+    pc.printf("songFreq[%d] =%d",a,songFreq[a]) ;
+    pc.printf("notelength[%d] =%d",a,noteLength[a]) ;
     wait(0.5);
   }
-  wait(60);
+
   
-  pc.printf("start dnn\n");
-  t_DNN.start(DNN);
-  pc.printf("start show mode\n");
-  t_show.start(showInfo);
-  pc.printf("start music\n");
+  // pc.printf("start dnn\n");
+  // t_DNN.start(DNN);
+  // pc.printf("start show mode\n");
+  // t_show.start(showInfo);
+  // pc.printf("start music\n");
 
-  // t_music.start(callback(&queue, &EventQueue::dispatch_forever));
-  
+  t_music.start(callback(&queue, &EventQueue::dispatch_forever));
+  pc.printf("start t_music\n");
+  while(1){
+    pc.printf("song_cursor=%d\n",song_cursor);
+    // switch(song_cursor){
+    //   case 0: 
+    //     //pc.printf("get song1==============================\r\n");
+    //     songFreq = songFreq1; 
+    //     noteLength = noteLength1;
+    //     break;
+    //   case 1: 
+    //     songFreq = songFreq2; 
+    //     noteLength = noteLength2;
+    //     break;
+    //   case 2: 
+    //     songFreq = songFreq3; 
+    //     noteLength = noteLength3;
+    //     break;
+    // }
+    int i=0;
+    for(i = 0; i < 48  && modeSwitch==1 ; i++)
+    {
+      pc.printf("start song for loop %d\r\n",i);
+      if(modeSwitch==1){
+        int length = noteLength[i];
+        pc.printf("length=%d\r\n",length);
+        while(length--)
+        {
+          pc.printf("play songFreq[%d]=%d\n", i, songFreq[i]);
+          queue.call(playNote, songFreq[i]);
+          if(length <= 1) wait(0.3);
+        }
+      }else{
+        queue.cancel(0);
+      }
+      wait(1);
+    }
+    pc.printf("end \r\n");
 
-  // pc.printf("start t_music\n");
-  // while(1){
-  //   float *songFreq, *noteLength;
-  //   pc.printf("song_cursor=%d\n",song_cursor);
-  //   // switch(song_cursor){
-  //   //   case 0: 
-  //   //     //pc.printf("get song1==============================\r\n");
-  //   //     songFreq = songFreq1; 
-  //   //     noteLength = noteLength1;
-  //   //     break;
-  //   //   case 1: 
-  //   //     songFreq = songFreq2; 
-  //   //     noteLength = noteLength2;
-  //   //     break;
-  //   //   case 2: 
-  //   //     songFreq = songFreq3; 
-  //   //     noteLength = noteLength3;
-  //   //     break;
-  //   // }
-    
-  //   for(int i = 0; i < 42  && modeSwitch==1 ; i++)
-  //   {
-  //     pc.printf("start song for loop %d\r\n",i);
-  //     if(modeSwitch==1){
-  //       int length = noteLength1[i];
-  //       while(length--)
-  //       {
-  //         queue.call(playNote, songFreq1[i]);
-  //         if(length <= 1) wait(0.3);
-  //       }
-  //     }else{
-  //       queue.cancel(0);
-  //     }
-  //   }
-  //   pc.printf("end \r\n");
-
-  // queue.cancel(0);
-  //}
+  //queue.cancel(0);
+  }
 
 }
 

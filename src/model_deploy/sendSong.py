@@ -89,16 +89,17 @@ noteLength3 = np.array([
 
 # output formatter
 
-formatter = lambda x: "%.3f" % x
+formatter = lambda x: "%03.0f" % x
 
 songList=np.array([songFreq2])
 #, songFreq2, songFreq3])
-lengthList=np.array([noteLength1,noteLength2,noteLength3])
+lengthList=np.array([noteLength1])
+#,noteLength2,noteLength3])
 # send the waveform table to K66F
 
-serdev = '/dev/ttyACM0'
+serdev = '/dev/ttyACM1'
 
-s = serial.Serial(serdev, baudrate=115200)
+s = serial.Serial(serdev)
 
 print("Sending signal ...")
 
@@ -110,10 +111,11 @@ for song in songList:
     print(bytes(formatter(data), 'UTF-8'))
     time.sleep(waitTime)
 
-# for length in lengthList:
-#   for data in length:
-#     s.write(bytes(formatter(data), 'UTF-8'))
-#         time.sleep(waitTime)
+for length in lengthList:
+  for data in length:
+    s.write(bytes(formatter(data), 'UTF-8'))
+    print(bytes(formatter(data), 'UTF-8'))
+    time.sleep(waitTime)
 
 s.close()
 

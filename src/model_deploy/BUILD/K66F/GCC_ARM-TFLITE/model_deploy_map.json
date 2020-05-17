@@ -2,7 +2,7 @@
     {
         "module": "4DGL-uLCD-SE/uLCD_4DGL_Text.o",
         "size": {
-            ".text": 436,
+            ".text": 336,
             ".data": 0,
             ".bss": 0,
             ".text-delta": 0,
@@ -24,7 +24,7 @@
     {
         "module": "DA7212/DA7212.o",
         "size": {
-            ".text": 840,
+            ".text": 936,
             ".data": 100,
             ".bss": 535,
             ".text-delta": 0,
@@ -35,9 +35,9 @@
     {
         "module": "[fill]",
         "size": {
-            ".text": 269,
-            ".data": 13,
-            ".bss": 50,
+            ".text": 224,
+            ".data": 11,
+            ".bss": 48,
             ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
@@ -46,7 +46,7 @@
     {
         "module": "[lib]/c.a",
         "size": {
-            ".text": 38394,
+            ".text": 31469,
             ".data": 2472,
             ".bss": 89,
             ".text-delta": 0,
@@ -57,7 +57,7 @@
     {
         "module": "[lib]/gcc.a",
         "size": {
-            ".text": 3452,
+            ".text": 3272,
             ".data": 0,
             ".bss": 0,
             ".text-delta": 0,
@@ -68,8 +68,8 @@
     {
         "module": "[lib]/m.a",
         "size": {
-            ".text": 2417,
-            ".data": 1,
+            ".text": 5328,
+            ".data": 0,
             ".bss": 0,
             ".text-delta": 0,
             ".data-delta": 0,
@@ -82,17 +82,6 @@
             ".text": 180,
             ".data": 4,
             ".bss": 28,
-            ".text-delta": 0,
-            ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "[lib]/nosys.a",
-        "size": {
-            ".text": 32,
-            ".data": 0,
-            ".bss": 0,
             ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
@@ -112,20 +101,9 @@
     {
         "module": "accelerometer_handler.o",
         "size": {
-            ".text": 584,
-            ".data": 9,
-            ".bss": 2438,
-            ".text-delta": 0,
-            ".data-delta": 0,
-            ".bss-delta": 0
-        }
-    },
-    {
-        "module": "magic_wand_model_data.o",
-        "size": {
-            ".text": 12248,
+            ".text": 60,
             ".data": 0,
-            ".bss": 0,
+            ".bss": 24,
             ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
@@ -134,10 +112,10 @@
     {
         "module": "main.o",
         "size": {
-            ".text": 2309,
-            ".data": 144,
-            ".bss": 1526,
-            ".text-delta": 0,
+            ".text": 1346,
+            ".data": 4,
+            ".bss": 3358,
+            ".text-delta": -56,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -145,7 +123,7 @@
     {
         "module": "mbed-os/components",
         "size": {
-            ".text": 34,
+            ".text": 50,
             ".data": 0,
             ".bss": 0,
             ".text-delta": 0,
@@ -156,7 +134,7 @@
     {
         "module": "mbed-os/drivers",
         "size": {
-            ".text": 1686,
+            ".text": 1514,
             ".data": 0,
             ".bss": 44,
             ".text-delta": 0,
@@ -167,7 +145,7 @@
     {
         "module": "mbed-os/events",
         "size": {
-            ".text": 415,
+            ".text": 1501,
             ".data": 0,
             ".bss": 0,
             ".text-delta": 0,
@@ -189,7 +167,7 @@
     {
         "module": "mbed-os/platform",
         "size": {
-            ".text": 6636,
+            ".text": 6336,
             ".data": 261,
             ".bss": 309,
             ".text-delta": 0,
@@ -200,7 +178,7 @@
     {
         "module": "mbed-os/rtos",
         "size": {
-            ".text": 9663,
+            ".text": 10103,
             ".data": 168,
             ".bss": 5980,
             ".text-delta": 0,
@@ -211,7 +189,7 @@
     {
         "module": "mbed-os/targets",
         "size": {
-            ".text": 13435,
+            ".text": 13111,
             ".data": 36,
             ".bss": 322,
             ".text-delta": 0,
@@ -222,8 +200,8 @@
     {
         "module": "tensorflowlite_mbed/tensorflow",
         "size": {
-            ".text": 27504,
-            ".data": 192,
+            ".text": 725,
+            ".data": 0,
             ".bss": 108,
             ".text-delta": 0,
             ".data-delta": 0,
@@ -232,10 +210,10 @@
     },
     {
         "summary": {
-            "static_ram": 14984,
+            "static_ram": 14056,
             "static_ram_delta": 0,
-            "total_flash": 126524,
-            "total_flash_delta": 0
+            "total_flash": 82137,
+            "total_flash_delta": -56
         }
     }
 ]
