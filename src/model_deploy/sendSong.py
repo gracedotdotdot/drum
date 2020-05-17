@@ -24,7 +24,7 @@ songFreq1=np.array([ #48 note
 
 noteLength1 = np.array([
 
-  0.5, 1.5, 1, 1, 1, 1, 2,
+  1, 2, 1, 1, 1, 1, 2,
 
   1, 1, 1, 1, 1, 2,
 
@@ -52,7 +52,8 @@ songFreq2=np.array([  #42 note
 
   261, 261, 392, 392, 440, 440, 392,
 
-  349, 349, 330, 330, 294, 294, 261])
+  349, 349, 330, 330, 294, 294, 261,
+  0, 0, 0, 0, 0, 0])
 
 
 noteLength2 = np.array([
@@ -67,37 +68,35 @@ noteLength2 = np.array([
 
   1, 1, 1, 1, 1, 1, 2,
 
-  1, 1, 1, 1, 1, 1, 2])
+  1, 1, 1, 1, 1, 1, 2,
+  0, 0, 0, 0, 0, 0])
 
 songFreq3=np.array([  #26 note
   294,330,392 ,294,392,440 , 
   392,440,494 ,523,587 ,494,
   494,440,294,330,392  ,294,
   294,392,440 ,523,494 ,440,
-  659 ,587])
+  659 ,587, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 noteLength3 = np.array([
-
   1, 1, 2, 1, 1, 2, 1,
-
   1, 2, 1, 2, 1, 1, 1,
-
   1, 1, 3, 1, 1, 1, 2,
-
-  1, 2, 1, 2, 1])
+  1, 2, 1, 2, 1, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0])
 
 
 # output formatter
 
 formatter = lambda x: "%03.0f" % x
 
-songList=np.array([songFreq2])
-#, songFreq2, songFreq3])
-lengthList=np.array([noteLength1])
-#,noteLength2,noteLength3])
+songList=np.array([songFreq1, songFreq2, songFreq3])
+lengthList=np.array([noteLength1,noteLength2,noteLength3])
 # send the waveform table to K66F
 
-serdev = '/dev/ttyACM1'
+serdev = '/dev/ttyACM3'
 
 s = serial.Serial(serdev)
 
